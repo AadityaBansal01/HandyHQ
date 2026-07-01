@@ -9,6 +9,7 @@ const connectDB = require('./config/db');
 const workerRoutes = require('./routes/workerRoutes'); 
 const customerRoutes = require('./routes/customerRoutes'); // NEW
 const bookingRoutes = require('./routes/bookingRoutes');   // NEW
+const adminRoutes = require('./routes/adminRoutes');   // NEW
 
 connectDB();
 
@@ -29,6 +30,7 @@ app.get('/', (req, res) => {
 app.use('/api/workers', workerRoutes);
 app.use('/api/customers', customerRoutes);   // NEW
 app.use('/api/bookings', bookingRoutes);   // NEW
+app.use('/api/admin', adminRoutes);   // NEW
 
 const PORT = process.env.PORT || 5000;
 
