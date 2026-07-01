@@ -1,1 +1,24 @@
-@import "tailwindcss";
+ @import "tailwindcss";
+
+   @theme {
+     /* --- COLORS --- each one has a specific JOB, not just "a color we liked" */
+     --color-paper: #EDEEE6;   /* main background — warm paper, not stark white */
+     --color-ink: #22252B;     /* main text color — near-black, warm undertone */
+     --color-steel: #5B6470;   /* secondary text, borders — muted blue-gray */
+     --color-amber: #E07B2A;   /* PRIMARY ACTION color only — buttons, links */
+     --color-teal: #2E6C5C;    /* TRUST signal only — verified badges, success */
+     --color-rust: #AF4530;    /* WARNING signal only — cancel, error states */
+   
+     /* --- FONTS --- three fonts, three different jobs */
+     --font-display: "Space Grotesk", sans-serif;  /* headings only — used sparingly */
+     --font-body: "Inter", sans-serif;              /* all normal text, forms, buttons */
+     --font-mono: "IBM Plex Mono", monospace;       /* job IDs, timestamps, status codes */
+   }
+   
+   /* set the page's default look — body text uses our body font and ink color,
+      on our paper background, everywhere, automatically */
+   body {
+     font-family: var(--font-body);
+     background-color: var(--color-paper);
+     color: var(--color-ink);
+   }
