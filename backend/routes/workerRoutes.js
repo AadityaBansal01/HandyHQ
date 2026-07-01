@@ -2,10 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
-const { registerWorker } = require('../controllers/workerController');
+const { registerWorker, loginWorker } = require('../controllers/workerController'); // CHANGED
 
 
 // Register route: when POST request comes to /register, call registerWorker controller
 router.post('/register', registerWorker);
+router.post('/login', loginWorker);   // NEW
 
 module.exports = router;
