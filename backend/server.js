@@ -6,6 +6,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db'); 
+const workerRoutes = require('./routes/workerRoutes'); 
 
 connectDB();
 
@@ -21,6 +22,10 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('LabourConnect backend is running');
 });
+
+// Routes all requests starting with /api/workers to workerRoutes
+app.use('/api/workers', workerRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 
