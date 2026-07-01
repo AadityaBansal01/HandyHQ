@@ -3,6 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const { loginAdmin, getPendingWorkers, approveWorker, rejectWorker } = require('../controllers/adminController'); // CHANGED
+const protect = require('../middleware/authMiddleware');
+const authorize = require('../middleware/roleMiddleware');
 
 router.post('/login', loginAdmin);
 
