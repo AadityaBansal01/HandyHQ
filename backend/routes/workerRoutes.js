@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { registerWorker, loginWorker, updateWorkerProfile, uploadProfilePhoto, searchWorkers } = require('../controllers/workerController'); // CHANGED
+const { registerWorker, loginWorker, updateWorkerProfile, uploadProfilePhoto, searchWorkers, getWorkerById } = require('../controllers/workerController'); // CHANGED
 const protect = require('../middleware/authMiddleware');       // NEW
 const authorize = require('../middleware/roleMiddleware');     // NEW
 const upload = require('../middleware/uploadMiddleware');   // NEW
@@ -18,5 +18,7 @@ router.put('/profile-photo', protect, authorize('worker'), upload.single('photo'
 
 // public route — no login needed to search, so customers can browse before signing up
 router.get('/search', searchWorkers);   // NEW
+
+router.get('/:id', getWorkerById);   // NEW — must stay BELOW '/search', explained below
 
 module.exports = router;

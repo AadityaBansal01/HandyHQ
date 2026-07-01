@@ -241,6 +241,25 @@ const searchWorkers = async (req, res) => {
   }
 };
 
-module.exports = { registerWorker, loginWorker, updateWorkerProfile, uploadProfilePhoto, searchWorkers };   // CHANGED  // CHANGED  // CHANGED — added loginWorker  // CHANGED
+
+// GET /api/workers/:id — public route, view one worker's full profile
+const getWorkerById = async (req, res) => {
+  try {
+    // req.params.id comes from the ":id" part of the URL, e.g. /api/workers/64f1a2...
+    const worker = await Worker.findById(req.params.id).select('-password');
+    // .select('-password') means "return everything EXCEPT password" — never send the hash to frontend
+
+    if (!worker) {
+      return res.status(404).json({ message: 'Worker not found' });
+    }
+
+    res.status(200).json({ worker });
+  } catch (err) {
+    // if the id in the URL isn't even a valid Mongo ID format, this catches that too
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+module.exports = { registerWorker, loginWorker, updateWorkerProfile, uploadProfilePhoto, searchWorkers, getWorkerById };   // CHANGED  // CHANGED  // CHANGED  // CHANGED — added loginWorker  // CHANGED
    
  
