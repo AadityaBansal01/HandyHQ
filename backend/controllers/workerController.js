@@ -87,5 +87,53 @@ const loginWorker = async (req, res) => {
     }
   };
   
-
-  module.exports = { registerWorker, loginWorker };   // CHANGED — added loginWorker
+// PUT /api/workers/profile — worker updates their own profile (protected route)
+const updateWorkerProfile = async (req, res) => {
+    try {
+      // req.user.id comes from the JWT — set by authMiddleware after verifying token
+      const worker = await Worker.findById(req.user.id);
+  
+      if (!worker) {
+        return res.status(404).json({ message: 'Worker not found' });
+      }
+  
+      // only these fields are allowed to be updated here
+      const {
+        name,
+        alternatePhone,
+        chargesType,
+        chargesAmount,
+        serviceRadiusKm,
+        idDocumentType,
+        idDocumentNumber,
+        longitude,
+        latitude,
+      } = req.body;
+  
+      // update only fields that were actually sent — leave others untouched
+      if (name) worker.name = name;
+      if (alternatePhone) worker.alternatePhone = alternatePhone;
+      if (chargesType) worker.chargesType = chargesType;
+      if (chargesAmount) worker.chargesAmount = chargesAmount;
+      if (serviceRadiusKm) worker.serviceRadiusKm = serviceRadiusKm;
+      if (idDocumentType) worker.idDocumentType = idDocumentType;
+      if (idDocumentNumber) worker.idDocumentNumber = idDocumentNumber;
+  
+      // location needs both longitude and latitude together to be valid GeoJSON
+      if (longitude && latitude) {
+        worker.location = {
+          type: 'Point',
+          coordinates: [longitude, latitude], // order matters: [lng, lat]
+        };
+      }
+  
+      const updatedWorker = await worker.save();
+  
+      res.status(200).json({ worker: updatedWorker });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  };
+  
+  module.exports = { registerWorker, loginWorker, updateWorkerProfile }; // CHANGED — added loginWorker  // CHANGED
+ 
