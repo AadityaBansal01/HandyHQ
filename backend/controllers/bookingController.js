@@ -91,4 +91,63 @@ const respondToBooking = async (req, res) => {
   }
 };
 
-module.exports = { createBooking, respondToBooking };   // CHANGED
+// PUT /api/bookings/:id/start — worker marks an accepted booking as InProgress (protected, worker only)
+const startBooking = async (req, res) => {
+    try {
+      const booking = await Booking.findById(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+  
+      // same ownership check as respondToBooking — only the assigned worker can act on this booking
+      if (booking.workerId.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'This booking is not assigned to you' });
+      }
+  
+      // can only START a job that has been Accepted — not straight from Requested, not from InProgress again
+      if (booking.status !== 'Accepted') {
+        return res.status(400).json({ message: `Cannot start — booking is currently ${booking.status}` });
+      }
+  
+      booking.status = 'InProgress';
+      const updatedBooking = await booking.save();
+  
+      res.status(200).json({ booking: updatedBooking });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  };
+  
+  // PUT /api/bookings/:id/complete — worker marks a job as Completed (protected, worker only)
+  const completeBooking = async (req, res) => {
+    try {
+      const booking = await Booking.findById(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+  
+      if (booking.workerId.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'This booking is not assigned to you' });
+      }
+  
+      // can only COMPLETE a job that is currently InProgress
+      if (booking.status !== 'InProgress') {
+        return res.status(400).json({ message: `Cannot complete — booking is currently ${booking.status}` });
+      }
+  
+      booking.status = 'Completed';
+      await booking.save();
+  
+      // MVP RULE from your spec: "On booking Completed: reset worker cancellationStreak to 0"
+      // a successful completion is what "forgives" past cancellations — so we reset it here,
+      // right at the moment a job finishes successfully
+      const Worker = require('../models/Worker');
+      await Worker.findByIdAndUpdate(booking.workerId, { cancellationStreak: 0 });
+  
+      res.status(200).json({ booking });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  };
+  
+  module.exports = { createBooking, respondToBooking, startBooking, completeBooking };   // CHANGED
