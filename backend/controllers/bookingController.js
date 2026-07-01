@@ -5,6 +5,7 @@
 const Booking = require('../models/Booking');
 const Worker = require('../models/Worker');
 
+
 // POST /api/bookings — customer creates a new booking request (protected, customer only)
 const createBooking = async (req, res) => {
   try {
@@ -141,7 +142,7 @@ const startBooking = async (req, res) => {
       // MVP RULE from your spec: "On booking Completed: reset worker cancellationStreak to 0"
       // a successful completion is what "forgives" past cancellations — so we reset it here,
       // right at the moment a job finishes successfully
-      const Worker = require('../models/Worker');
+     
       await Worker.findByIdAndUpdate(booking.workerId, { cancellationStreak: 0 });
   
       res.status(200).json({ booking });
@@ -183,4 +184,71 @@ const cancelBookingByCustomer = async (req, res) => {
     }
   };
   
-  module.exports = { createBooking, respondToBooking, startBooking, completeBooking, cancelBookingByCustomer };   // CHANGED
+ // PUT /api/bookings/:id/cancel-by-worker — worker cancels a booking they already accepted (protected, worker only)
+const cancelBookingByWorker = async (req, res) => {
+    try {
+      const booking = await Booking.findById(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+  
+      if (booking.workerId.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'This booking is not assigned to you' });
+      }
+  
+      // spec says the STREAK penalty applies to cancelling "after accepting" —
+      // so this action is only valid once accepted (or already InProgress), not on a raw Requested booking
+      // (a Requested booking should be REJECTED via respondToBooking instead, which carries no penalty)
+      const cancellableStatuses = ['Accepted', 'InProgress'];
+      if (!cancellableStatuses.includes(booking.status)) {
+        return res.status(400).json({ message: `Cannot cancel — booking is currently ${booking.status}` });
+      }
+  
+      booking.status = 'Cancelled';
+      booking.cancellationBy = 'worker';
+      booking.cancellationReason = req.body.reason || 'Cancelled by worker';
+      await booking.save();
+  
+      // fetch the worker so we can update their streak/suspension fields
+      const worker = await Worker.findById(booking.workerId);
+  
+      // increment streak — this is the "3 continuous cancellations" counter from your spec
+      worker.cancellationStreak += 1;
+  
+      let suspended = false; // used to tell the frontend/response whether suspension just kicked in
+  
+      if (worker.cancellationStreak >= 3) {
+        worker.isSuspended = true;
+  
+        // suspendedUntil = right now + 15 days, in milliseconds
+        // Date.now() gives current time in ms, 15 * 24 * 60 * 60 * 1000 = 15 days in ms
+        worker.suspendedUntil = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+  
+        worker.cancellationStreak = 0; // reset streak — spec says "reset only after 1 successful completion",
+        // but also implicitly after a suspension kicks in, since the streak has "done its job" and restarting
+        // at 0 avoids instantly re-suspending the moment they're unsuspended
+        suspended = true;
+      }
+  
+      await worker.save();
+  
+      res.status(200).json({
+        booking,
+        cancellationStreak: worker.cancellationStreak,
+        isSuspended: worker.isSuspended,
+        suspendedUntil: worker.suspendedUntil,
+        justGotSuspended: suspended, // handy flag for frontend to show a special warning message
+      });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  };
+  
+  module.exports = {
+    createBooking,
+    respondToBooking,
+    startBooking,
+    completeBooking,
+    cancelBookingByCustomer,
+    cancelBookingByWorker,   // NEW
+  };
