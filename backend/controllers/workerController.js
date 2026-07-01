@@ -3,6 +3,7 @@
 const Worker = require('../models/Worker');
 const { hashPassword, comparePassword } = require('../utils/hashPassword'); // CHANGED — added comparePassword
 const generateToken = require('../utils/generateToken');
+const cloudinary = require('../config/cloudinary');
 
 // POST /api/workers/register
 const registerWorker = async (req, res) => {
@@ -135,5 +136,38 @@ const updateWorkerProfile = async (req, res) => {
     }
   };
   
-  module.exports = { registerWorker, loginWorker, updateWorkerProfile }; // CHANGED — added loginWorker  // CHANGED
+
+  // PUT /api/workers/profile-photo — worker uploads/replaces their profile photo
+const uploadProfilePhoto = async (req, res) => {
+  try {
+    // Ensure a file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // convert file buffer to a format Cloudinary accepts (base64 data URI)
+    const base64File = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    
+    // Upload file to Cloudinary
+    const result = await cloudinary.uploader.upload(base64File, {
+      folder: 'labourconnect/worker-photos', // keeps uploads organized in Cloudinary
+    });
+
+    // Find current worker
+    const worker = await Worker.findById(req.user.id);
+    if (!worker) {
+      return res.status(404).json({ message: 'Worker not found' });
+    }
+    // Save uploaded image URL in database
+    worker.profilePhoto = result.secure_url; // save the permanent Cloudinary URL
+    await worker.save();
+
+    res.status(200).json({ profilePhoto: worker.profilePhoto });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+module.exports = { registerWorker, loginWorker, updateWorkerProfile, uploadProfilePhoto };   // CHANGED  // CHANGED — added loginWorker  // CHANGED
+   
  
