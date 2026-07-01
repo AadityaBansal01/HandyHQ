@@ -296,6 +296,80 @@ const rateBooking = async (req, res) => {
     }
   };
   
+// GET /api/bookings/worker — logged-in worker sees ALL their own bookings (protected, worker only)
+// example call: /api/bookings/worker?page=1&limit=10
+const getWorkerBookings = async (req, res) => {
+    try {
+      // query params (?page=1&limit=10) always arrive as STRINGS from the URL,
+      // so we give simple defaults and convert them to real numbers below
+      const { page = 1, limit = 10 } = req.query;
+  
+      const pageNum = parseInt(page);   // "1" -> 1
+      const limitNum = parseInt(limit); // "10" -> 10
+  
+      // req.user.id is THIS worker's id, taken from their JWT by authMiddleware
+      // we only ever fetch bookings that belong to them — never all bookings in the DB
+      const bookings = await Booking.find({ workerId: req.user.id })
+        .sort({ createdAt: -1 })
+        // -1 means "newest first" — so the worker's most recent booking shows at the top
+        .skip((pageNum - 1) * limitNum)
+        // skip = how many results to jump over before starting this page
+        // page 1 -> skip 0, page 2 -> skip 10 (if limit is 10), page 3 -> skip 20, etc.
+        .limit(limitNum)
+        // limit = how many results to actually return for this one page
+        .populate('customerId', 'name phone');
+        // populate REPLACES the raw customerId (just an id string) with the actual
+        // customer's name and phone — so the worker's frontend doesn't need a second API call
+        // just to show "who booked this job"
+  
+      // also get the TOTAL count (ignoring pagination) — frontend needs this to know
+      // how many pages exist in total, e.g. to show "Page 1 of 4"
+      const totalBookings = await Booking.countDocuments({ workerId: req.user.id });
+  
+      res.status(200).json({
+        page: pageNum,
+        limit: limitNum,
+        totalBookings,
+        totalPages: Math.ceil(totalBookings / limitNum),
+        // Math.ceil rounds UP — e.g. 23 bookings at 10 per page = 2.3 -> 3 pages needed
+        bookings,
+      });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  };
+  
+  // GET /api/bookings/customer — logged-in customer sees ALL their own bookings (protected, customer only)
+  // exact same pattern as getWorkerBookings above, just filtered by customerId instead of workerId
+  const getCustomerBookings = async (req, res) => {
+    try {
+      const { page = 1, limit = 10 } = req.query;
+  
+      const pageNum = parseInt(page);
+      const limitNum = parseInt(limit);
+  
+      const bookings = await Booking.find({ customerId: req.user.id })
+        .sort({ createdAt: -1 })
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum)
+        // here we populate the WORKER's info instead — customer's frontend needs
+        // to show "who did I book" (worker name, photo, workType) on their booking history page
+        .populate('workerId', 'name workType profilePhoto');
+  
+      const totalBookings = await Booking.countDocuments({ customerId: req.user.id });
+  
+      res.status(200).json({
+        page: pageNum,
+        limit: limitNum,
+        totalBookings,
+        totalPages: Math.ceil(totalBookings / limitNum),
+        bookings,
+      });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  };
+  
   module.exports = {
     createBooking,
     respondToBooking,
@@ -303,5 +377,7 @@ const rateBooking = async (req, res) => {
     completeBooking,
     cancelBookingByCustomer,
     cancelBookingByWorker,
-    rateBooking,   // NEW
+    rateBooking,
+    getWorkerBookings,    // NEW
+    getCustomerBookings,  // NEW
   };
