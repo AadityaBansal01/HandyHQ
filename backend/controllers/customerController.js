@@ -80,5 +80,52 @@ const loginCustomer = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
-
-module.exports = { registerCustomer, loginCustomer };
+// GET /api/customers/profile — logged-in customer views their own profile (protected)
+const getCustomerProfile = async (req, res) => {
+    try {
+      // req.user.id comes from the JWT — set by authMiddleware after verifying token
+      const customer = await Customer.findById(req.user.id).select('-password');
+      // .select('-password') = return everything except the password hash
+  
+      if (!customer) {
+        return res.status(404).json({ message: 'Customer not found' });
+      }
+  
+      res.status(200).json({ customer });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  };
+  
+  // PUT /api/customers/profile — logged-in customer updates their own profile (protected)
+  const updateCustomerProfile = async (req, res) => {
+    try {
+      const customer = await Customer.findById(req.user.id);
+  
+      if (!customer) {
+        return res.status(404).json({ message: 'Customer not found' });
+      }
+  
+      // only these fields are allowed to be updated here
+      const { name, email } = req.body;
+  
+      // update only fields that were actually sent — leave others untouched
+      if (name) customer.name = name;
+      if (email) customer.email = email;
+  
+      const updatedCustomer = await customer.save();
+  
+      res.status(200).json({
+        customer: {
+          id: updatedCustomer._id,
+          name: updatedCustomer.name,
+          phone: updatedCustomer.phone,
+          email: updatedCustomer.email,
+        },
+      });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  };
+  
+  module.exports = { registerCustomer, loginCustomer, getCustomerProfile, updateCustomerProfile };   // CHANGED
