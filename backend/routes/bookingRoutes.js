@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { createBooking, respondToBooking, startBooking, completeBooking } = require('../controllers/bookingController'); // CHANGED
+const { createBooking, respondToBooking, startBooking, completeBooking, cancelBookingByCustomer } = require('../controllers/bookingController'); // CHANGED
 const authorize = require('../middleware/roleMiddleware');
 const protect = require('../middleware/authMiddleware');
 
@@ -15,5 +15,7 @@ router.put('/:id/respond', protect, authorize('worker'), respondToBooking);   //
 
 router.put('/:id/start', protect, authorize('worker'), startBooking);       // NEW
 router.put('/:id/complete', protect, authorize('worker'), completeBooking); // NEW
+
+router.put('/:id/cancel-by-customer', protect, authorize('customer'), cancelBookingByCustomer);   // NEW
 
 module.exports = router;

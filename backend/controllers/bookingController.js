@@ -150,4 +150,37 @@ const startBooking = async (req, res) => {
     }
   };
   
-  module.exports = { createBooking, respondToBooking, startBooking, completeBooking };   // CHANGED
+// PUT /api/bookings/:id/cancel-by-customer — customer cancels their own booking (protected, customer only)
+const cancelBookingByCustomer = async (req, res) => {
+    try {
+      const booking = await Booking.findById(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+  
+      // OWNERSHIP CHECK — only the customer who made this booking can cancel it
+      if (booking.customerId.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'This booking does not belong to you' });
+      }
+  
+      // STATE CHECK — spec says: "allow Cancelled at any stage before Completed"
+      // so cancel is blocked once it's Completed, Rated, or already Cancelled
+      const blockedStatuses = ['Completed', 'Rated', 'Cancelled'];
+      if (blockedStatuses.includes(booking.status)) {
+        return res.status(400).json({ message: `Cannot cancel — booking is already ${booking.status}` });
+      }
+  
+      booking.status = 'Cancelled';
+      booking.cancellationBy = 'customer';
+      booking.cancellationReason = req.body.reason || 'Cancelled by customer';
+      // reason is optional from the frontend — falls back to a generic message if not sent
+  
+      const updatedBooking = await booking.save();
+  
+      res.status(200).json({ booking: updatedBooking });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  };
+  
+  module.exports = { createBooking, respondToBooking, startBooking, completeBooking, cancelBookingByCustomer };   // CHANGED
