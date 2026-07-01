@@ -167,7 +167,80 @@ const uploadProfilePhoto = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+// GET /api/workers/search — public route, customers search nearby workers
+// example call: /api/workers/search?workType=Plumber&longitude=77.2&latitude=28.6&radiusKm=10&page=1&limit=10
+const searchWorkers = async (req, res) => {
+  try {
+    // pull all possible query params from the URL (?key=value&key2=value2...)
+    const {
+      workType,       // required — e.g. "Plumber"
+      longitude,      // required — customer's location
+      latitude,       // required — customer's location
+      radiusKm,       // required — how far to search
+      verifiedOnly,   // optional — "true" to show only verified workers
+      minRating,      // optional — e.g. "4" for 4+ stars
+      chargesType,    // optional — e.g. "per_hour"
+      page = 1,       // optional — defaults to page 1
+      limit = 10,     // optional — defaults to 10 results per page
+    } = req.query;
 
-module.exports = { registerWorker, loginWorker, updateWorkerProfile, uploadProfilePhoto };   // CHANGED  // CHANGED — added loginWorker  // CHANGED
+    // workType + location + radius are the MVP's "required" filters — reject if missing
+    if (!workType || !longitude || !latitude || !radiusKm) {
+      return res.status(400).json({
+        message: 'workType, longitude, latitude and radiusKm are required',
+      });
+    }
+
+    // query params always arrive as strings — convert to real numbers
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+
+    // filters applied ON TOP OF the geo search (matched only among nearby workers)
+    const matchFilters = {
+      workType,
+      isSuspended: false, // never show suspended workers in search results
+    };
+
+    // only add these filters if the customer actually asked for them
+    if (verifiedOnly === 'true') {
+      matchFilters.verificationStatus = 'Verified';
+    }
+    if (minRating) {
+      matchFilters.ratingAverage = { $gte: parseFloat(minRating) };
+    }
+    if (chargesType) {
+      matchFilters.chargesType = chargesType;
+    }
+
+    // $geoNear finds nearby workers AND sorts by distance automatically
+    const workers = await Worker.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: [parseFloat(longitude), parseFloat(latitude)], // [lng, lat] order
+          },
+          distanceField: 'distanceMeters', // adds this field to each result automatically
+          maxDistance: parseFloat(radiusKm) * 1000, // radius in km converted to meters
+          spherical: true, // required for real-world (lat/lng) distance calculation
+          query: matchFilters, // extra filters applied during the geo search itself
+        },
+      },
+      { $skip: (pageNum - 1) * limitNum }, // skip past previous pages
+      { $limit: limitNum },                // only return this page's worth of results
+      { $project: { password: 0 } },       // strip password hash from the response — never send this
+    ]);
+
+    res.status(200).json({
+      page: pageNum,
+      limit: limitNum,
+      results: workers,
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+module.exports = { registerWorker, loginWorker, updateWorkerProfile, uploadProfilePhoto, searchWorkers };   // CHANGED  // CHANGED  // CHANGED — added loginWorker  // CHANGED
    
  
