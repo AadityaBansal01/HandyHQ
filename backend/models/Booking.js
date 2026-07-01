@@ -1,7 +1,15 @@
 // models/Booking.js — defines what a "Booking" document looks like in MongoDB
 // this is the CENTER of the whole app — one booking moves through several
 // statuses over its life, and every Phase 4 API just moves it one step forward
+/* one Booking document moves through this exact chain, and its status field is the only thing that decides what buttons the frontend shows.
+Concretely, once we build Phase 7/8 frontends:
 
+Requested → sits in the worker's dashboard "New Requests" list. Worker sees Accept/Reject buttons only in this state.
+Accepted → moves to worker's "Active Jobs" list. Worker sees a "Start Job" button only here.
+InProgress → still in "Active Jobs", but now shows "Mark Complete" button instead.
+Completed → disappears from worker's active list, moves to customer's booking history with a "Rate this booking" button — this button is the only UI element that even exists conditionally on status, since rating before Completed makes no sense.
+Rated → final state, read-only, shows in both histories.
+Cancelled → can branch off from Requested, Accepted, or InProgress (not from Completed — that would make no sense, job's already done). This is where the cancellation-streak/suspension logic hooks in, but only when it's the worker who cancels. */
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({

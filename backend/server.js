@@ -8,6 +8,7 @@ const cors = require('cors');
 const connectDB = require('./config/db'); 
 const workerRoutes = require('./routes/workerRoutes'); 
 const customerRoutes = require('./routes/customerRoutes'); // NEW
+const bookingRoutes = require('./routes/bookingRoutes');   // NEW
 
 connectDB();
 
@@ -27,7 +28,7 @@ app.get('/', (req, res) => {
 // Routes all requests starting with /api/workers to workerRoutes
 app.use('/api/workers', workerRoutes);
 app.use('/api/customers', customerRoutes);   // NEW
-
+app.use('/api/bookings', bookingRoutes);   // NEW
 
 const PORT = process.env.PORT || 5000;
 
