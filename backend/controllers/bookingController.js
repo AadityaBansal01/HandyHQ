@@ -244,11 +244,64 @@ const cancelBookingByWorker = async (req, res) => {
     }
   };
   
+// PUT /api/bookings/:id/rate — customer rates a completed booking (protected, customer only)
+// example body: { "score": 5, "review": "Great work, on time" }
+const rateBooking = async (req, res) => {
+    try {
+      const { score, review } = req.body;
+  
+      // score is required and must be 1-5 — matches the schema's min/max, but we check
+      // here too so we can return a clean 400 message instead of a raw Mongoose validation error
+      if (!score || score < 1 || score > 5) {
+        return res.status(400).json({ message: 'score is required and must be between 1 and 5' });
+      }
+  
+      const booking = await Booking.findById(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+  
+      // OWNERSHIP CHECK — only the customer who made this booking can rate it
+      if (booking.customerId.toString() !== req.user.id) {
+        return res.status(403).json({ message: 'This booking does not belong to you' });
+      }
+  
+      // STATE CHECK — spec says rating is only allowed "only after Completed status"
+      if (booking.status !== 'Completed') {
+        return res.status(400).json({ message: `Cannot rate — booking must be Completed, currently ${booking.status}` });
+      }
+  
+      // save the rating onto the booking itself
+      booking.rating = { score, review };
+      booking.status = 'Rated'; // final state — nothing moves after this
+      await booking.save();
+  
+      // now update the WORKER's running average — this is the part search/profile pages read from
+      const worker = await Worker.findById(booking.workerId);
+  
+      // formula: new average = (old total sum of all scores + new score) / new count
+      // we don't store a running "total sum" separately, so we back-calculate it:
+      // oldSum = oldAverage * oldCount, then add the new score, then divide by newCount
+      const oldSum = worker.ratingAverage * worker.ratingCount;
+      const newCount = worker.ratingCount + 1;
+      const newAverage = (oldSum + score) / newCount;
+  
+      worker.ratingAverage = newAverage;
+      worker.ratingCount = newCount;
+      await worker.save();
+  
+      res.status(200).json({ booking, worker: { ratingAverage: worker.ratingAverage, ratingCount: worker.ratingCount } });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  };
+  
   module.exports = {
     createBooking,
     respondToBooking,
     startBooking,
     completeBooking,
     cancelBookingByCustomer,
-    cancelBookingByWorker,   // NEW
+    cancelBookingByWorker,
+    rateBooking,   // NEW
   };
