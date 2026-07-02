@@ -2,6 +2,7 @@
 // Reusable login form for both workers and customers (same fields, different role)
 
 import { useState } from 'react'
+import api from '../utils/axios'   // NEW — our central request tool
 
 function LoginForm() {
   // Component state: selected role + form inputs
@@ -9,13 +10,39 @@ function LoginForm() {
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
 
-  // Runs when login form is submitted
-  const handleSubmit = (e) => {
-    e.preventDefault() // Prevent page reload on form submit
 
-    // Temporary: log entered values (later replace with API call)
-    console.log('Logging in as:', role, { phone, password })
+  // NEW — two more pieces of state: one to show errors, one to show a "loading" state
+  // while waiting for the backend to respond (so the button can say "Logging in...")
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  // Runs when login form is submitted
+  const handleSubmit = async (e) => {   // CHANGED — now "async" because we're waiting on a network call
+    e.preventDefault()
+    setError('')      // clear any old error before trying again
+    setLoading(true)
+
+    // pick the right backend route based on which role is selected
+    const endpoint = role === 'worker' ? '/workers/login' : '/customers/login'
+
+    try {
+      const response = await api.post(endpoint, { phone, password })
+
+      // backend sends back { token, worker/customer }  — save the token so future
+      // requests (and future page loads) know this user is logged in
+      localStorage.setItem('token', response.data.token)
+      localStorage.setItem('role', role) // we'll need this later to decide which dashboard to show
+
+      console.log('Login successful:', response.data)
+      // TEMPORARY — in the next phase (routing), this becomes a redirect to the dashboard
+    } catch (err) {
+      // backend sends { message: '...' } on failure — show that exact message to the user
+      setError(err.response?.data?.message || 'Something went wrong. Try again.')
+    } finally {
+      setLoading(false)
+    }
   }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -67,6 +94,11 @@ function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           className="border border-steel rounded-md px-3 py-2 text-ink"
         />
+
+
+         {/* NEW — only shows up when there's an actual error to display */}
+         {error && <p className="text-rust text-sm">{error}</p>}
+
 
         {/* Submit login form */}
         <button type="submit" className="bg-amber text-white py-2 rounded-md font-medium">
