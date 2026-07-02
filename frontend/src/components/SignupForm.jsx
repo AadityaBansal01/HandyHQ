@@ -3,6 +3,7 @@
 // worker fields: name, phone, password, PLUS workType (workers need this, customers don't)
 
 import { useState } from 'react'
+import api from '../utils/axios'   // NEW
 
 function SignupForm() {
   const [role, setRole] = useState('customer')
@@ -16,17 +17,39 @@ function SignupForm() {
   // it just won't be SENT to the backend later if role is 'customer'
   const [workType, setWorkType] = useState('Plumber')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
 
-    // TEMPORARY — proving we're capturing the right shape of data for each role
-    if (role === 'worker') {
-      console.log('Signing up worker:', { name, phone, password, workType })
-    } else {
-      console.log('Signing up customer:', { name, phone, password })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)  
+
+
+  const handleSubmit = async (e) => {
+      e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    const endpoint = role === 'worker' ? '/workers/register' : '/customers/register'
+
+    // build the right body shape per role — customer doesn't need workType at all,
+    // sending it wouldn't break anything (backend just ignores extra fields), but
+    // keeping it clean means the request only ever contains what's actually relevant
+    const body = role === 'worker'
+      ? { name, phone, password, workType }
+      : { name, phone, password }
+
+    try {
+      const response = await api.post(endpoint, body)
+
+      localStorage.setItem('token', response.data.token)
+      localStorage.setItem('role', role)
+
+      console.log('Signup successful:', response.data)
+      // TEMPORARY — becomes a redirect to the dashboard once routing exists
+    } catch (err) {
+      setError(err.response?.data?.message || 'Something went wrong. Try again.')
+    } finally {
+      setLoading(false)
     }
   }
-
   return (
     <div className="min-h-screen flex items-center justify-center">
       <form
