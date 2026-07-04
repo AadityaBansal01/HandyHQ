@@ -21,11 +21,12 @@ function App() {
 
        {/* wrapping the element in <ProtectedRoute> means: check for token FIRST,
           only render the real page if one exists */}
+          {/* CHANGED — allowedRole tells ProtectedRoute exactly who's allowed through this specific door */}
       <Route path="/worker/dashboard" element={
-        <ProtectedRoute><WorkerDashboard /></ProtectedRoute>
+       <ProtectedRoute allowedRole="worker"><WorkerDashboard /></ProtectedRoute>
       } />
       <Route path="/customer/dashboard" element={
-        <ProtectedRoute><CustomerDashboard /></ProtectedRoute>
+        <ProtectedRoute allowedRole="customer"><CustomerDashboard /></ProtectedRoute>
       } />
 
 
