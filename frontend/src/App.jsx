@@ -1,7 +1,7 @@
 // App.jsx — TEMPORARY: swap this import to flip between viewing LoginForm and SignupForm
 // (real routing comes in 2 steps — this manual swap is just to test each form separately)
 
-i// App.jsx — now acts as a SWITCHBOARD, not a page itself
+// App.jsx — now acts as a SWITCHBOARD, not a page itself
 // <Routes> looks at the current URL and renders whichever <Route> matches it
 /* Think of your whole frontend as ONE page (index.html) that never actually reloads. React Router fakes the feeling of "different pages" by watching the URL and swapping out which component is shown — no real page reload happens, it's just JavaScript deciding what to render based on the address bar. App.jsx's job changes here: instead of directly showing a form, it becomes a switchboard — "if URL is /login, show LoginPage; if /signup, show SignupPage."*/
 
@@ -13,7 +13,10 @@ import CustomerDashboard from './pages/CustomerDashboard' // NEW
 import ProtectedRoute from './components/ProtectedRoute'  // NEW
 // App.jsx — switchboard, now with PROTECTED routes added
 import WorkerProfilePage from './pages/WorkerProfilePage'   // NEW
-import WorkerProfileSetupPage from './pages/WorkerProfileSetupPage'   // NEW import at top
+import AdminDashboard from './pages/AdminDashboard'
+import AdminLoginPage from './pages/AdminLoginPage'
+
+
 
 function App() {
   return (
@@ -27,10 +30,7 @@ function App() {
       <Route path="/worker/dashboard" element={
        <ProtectedRoute allowedRole="worker"><WorkerDashboard /></ProtectedRoute>
       } />
-      // NEW route — add this line next to the existing /worker/dashboard route
-<Route path="/worker/profile-setup" element={
-  <ProtectedRoute allowedRole="worker"><WorkerProfileSetupPage /></ProtectedRoute>
-} />
+    
       <Route path="/customer/dashboard" element={
         <ProtectedRoute allowedRole="customer"><CustomerDashboard /></ProtectedRoute>
       } />
@@ -38,11 +38,17 @@ function App() {
 <Route path="/admin/dashboard" element={
         <ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>
       } />   {/* NEW */}
+
+      
+      
+<Route path="/admin/login" element={<AdminLoginPage />} />
       
            {/* only customers should be able to view a profile and book someone */}
            <Route path="/workers/:id/view" element={
         <ProtectedRoute allowedRole="customer"><WorkerProfilePage /></ProtectedRoute>
       } />
+
+
 
 
       {/* if someone visits "/" (the root, no path), send them to /login instead —

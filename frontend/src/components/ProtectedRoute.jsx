@@ -20,10 +20,12 @@ function ProtectedRoute({ children, allowedRole }) {
     // logged in, but WRONG role for this specific page — send them to their own
   // dashboard instead of showing them a page meant for the other role
   // CHANGED — admin has its own dashboard now too, so this needs a 3-way check
-  const home = role === 'worker' ? '/worker/dashboard' : role === 'admin' ? '/admin/dashboard' : '/customer/dashboard'
-  return <Navigate to={home} />
+  if (role !== allowedRole) {
+    const home = role === 'worker' ? '/worker/dashboard' : role === 'admin' ? '/admin/dashboard' : '/customer/dashboard'
+    return <Navigate to={home} />
+  }
 
-  // token exists = let them through, show whatever page was wrapped
+  // token exists AND role matches = let them through, show whatever page was wrapped
   return children
 }
 
