@@ -2,9 +2,13 @@
 // Reusable login form for both workers and customers (same fields, different role)
 
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'   // NEW
 import api from '../utils/axios'   // NEW — our central request tool
 
 function LoginForm() {
+
+    const navigate = useNavigate()   // NEW — lets us send the user to a new URL in code
+    // ...all your existing state stays exactly the same...
   // Component state: selected role + form inputs
   const [role, setRole] = useState('customer')
   const [phone, setPhone] = useState('')
@@ -32,6 +36,9 @@ function LoginForm() {
       // requests (and future page loads) know this user is logged in
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('role', role) // we'll need this later to decide which dashboard to show
+
+            // NEW — send them to the right dashboard based on which role logged in
+            navigate(role === 'worker' ? '/worker/dashboard' : '/customer/dashboard')
 
       console.log('Login successful:', response.data)
       // TEMPORARY — in the next phase (routing), this becomes a redirect to the dashboard

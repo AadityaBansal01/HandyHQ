@@ -3,9 +3,12 @@
 // worker fields: name, phone, password, PLUS workType (workers need this, customers don't)
 
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'   // NEW
 import api from '../utils/axios'   // NEW
 
 function SignupForm() {
+    const navigate = useNavigate()   // NEW
+  // ...all your existing state stays exactly the same...
   const [role, setRole] = useState('customer')
 
   // one state slot per field — same controlled-input pattern from LoginForm
@@ -41,6 +44,8 @@ function SignupForm() {
 
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('role', role)
+
+      navigate(role === 'worker' ? '/worker/dashboard' : '/customer/dashboard')
 
       console.log('Signup successful:', response.data)
       // TEMPORARY — becomes a redirect to the dashboard once routing exists

@@ -3,16 +3,31 @@
 
 i// App.jsx — now acts as a SWITCHBOARD, not a page itself
 // <Routes> looks at the current URL and renders whichever <Route> matches it
+/* Think of your whole frontend as ONE page (index.html) that never actually reloads. React Router fakes the feeling of "different pages" by watching the URL and swapping out which component is shown — no real page reload happens, it's just JavaScript deciding what to render based on the address bar. App.jsx's job changes here: instead of directly showing a form, it becomes a switchboard — "if URL is /login, show LoginPage; if /signup, show SignupPage."*/
 
 import { Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
+import WorkerDashboard from './pages/WorkerDashboard'     // NEW
+import CustomerDashboard from './pages/CustomerDashboard' // NEW
+import ProtectedRoute from './components/ProtectedRoute'  // NEW
+// App.jsx — switchboard, now with PROTECTED routes added
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+
+       {/* wrapping the element in <ProtectedRoute> means: check for token FIRST,
+          only render the real page if one exists */}
+      <Route path="/worker/dashboard" element={
+        <ProtectedRoute><WorkerDashboard /></ProtectedRoute>
+      } />
+      <Route path="/customer/dashboard" element={
+        <ProtectedRoute><CustomerDashboard /></ProtectedRoute>
+      } />
+
 
       {/* if someone visits "/" (the root, no path), send them to /login instead —
           "/" itself isn't a real page in our app */}
