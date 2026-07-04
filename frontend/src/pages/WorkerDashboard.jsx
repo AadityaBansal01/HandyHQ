@@ -6,11 +6,13 @@
 import StatusPanel from '../components/StatusPanel'
 import PhotoUpload from '../components/PhotoUpload'
 import WorkerProfileForm from '../components/WorkerProfileForm'
+import BookingRequests from '../components/BookingRequests'
 
 function WorkerDashboard() {
     return (
       <div className="min-h-screen p-8 flex flex-col items-center gap-6">
         <StatusPanel />
+        <BookingRequests />
         <PhotoUpload />
         <WorkerProfileForm />
       </div>
