@@ -7,6 +7,7 @@
 
 import { useState } from 'react'
 import api from '../utils/axios'
+import { useNavigate } from 'react-router-dom'   // NEW
 
 function SearchWorkers() {
   const [workType, setWorkType] = useState('Plumber')
@@ -21,6 +22,7 @@ function SearchWorkers() {
   const [totalPages, setTotalPages] = useState(1)
   const [searched, setSearched] = useState(false) // tracks "has a search ever run" for the empty state
   const [error, setError] = useState('')
+  const navigate = useNavigate()   // NEW — lets us jump to a worker's profile page on click
 
   const useMyLocation = () => {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -108,7 +110,8 @@ function SearchWorkers() {
           {results.length === 0 && <p className="text-steel text-sm">No workers found nearby</p>}
 
           {results.map((worker) => (
-            <div key={worker._id} className="border border-steel rounded-md p-3 flex flex-col gap-1">
+           <div key={worker._id} onClick={() => navigate(`/workers/${worker._id}/view`)}
+           className="border border-steel rounded-md p-3 flex flex-col gap-1 cursor-pointer hover:border-amber">
               <div className="flex justify-between items-center">
                 <p className="font-display font-medium text-ink">{worker.name}</p>
                 {worker.verificationStatus === 'Verified' && (

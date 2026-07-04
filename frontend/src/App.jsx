@@ -12,6 +12,7 @@ import WorkerDashboard from './pages/WorkerDashboard'     // NEW
 import CustomerDashboard from './pages/CustomerDashboard' // NEW
 import ProtectedRoute from './components/ProtectedRoute'  // NEW
 // App.jsx — switchboard, now with PROTECTED routes added
+import WorkerProfilePage from './pages/WorkerProfilePage'   // NEW
 import WorkerProfileSetupPage from './pages/WorkerProfileSetupPage'   // NEW import at top
 
 function App() {
@@ -32,6 +33,11 @@ function App() {
 } />
       <Route path="/customer/dashboard" element={
         <ProtectedRoute allowedRole="customer"><CustomerDashboard /></ProtectedRoute>
+      } />
+      
+           {/* only customers should be able to view a profile and book someone */}
+           <Route path="/workers/:id/view" element={
+        <ProtectedRoute allowedRole="customer"><WorkerProfilePage /></ProtectedRoute>
       } />
 
 
