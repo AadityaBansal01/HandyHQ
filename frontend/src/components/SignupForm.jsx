@@ -5,11 +5,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'   // NEW
 import api from '../utils/axios'   // NEW
+import { useSearchParams } from 'react-router-dom'
 
 function SignupForm() {
     const navigate = useNavigate()   // NEW
   // ...all your existing state stays exactly the same...
-  const [role, setRole] = useState('customer')
+  const [searchParams] = useSearchParams()
+// if the URL was /signup?role=worker (from the landing page), start with Worker already selected
+const [role, setRole] = useState(searchParams.get('role') === 'worker' ? 'worker' : 'customer')
 
   // one state slot per field — same controlled-input pattern from LoginForm
   const [name, setName] = useState('')

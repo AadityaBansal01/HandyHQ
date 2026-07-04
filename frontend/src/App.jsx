@@ -15,6 +15,7 @@ import ProtectedRoute from './components/ProtectedRoute'  // NEW
 import WorkerProfilePage from './pages/WorkerProfilePage'   // NEW
 import AdminDashboard from './pages/AdminDashboard'
 import AdminLoginPage from './pages/AdminLoginPage'
+import LandingPage from './pages/LandingPage'
 
 
 
@@ -51,9 +52,7 @@ function App() {
 
 
 
-      {/* if someone visits "/" (the root, no path), send them to /login instead —
-          "/" itself isn't a real page in our app */}
-      <Route path="/" element={<Navigate to="/login" />} />
+<Route path="/" element={<LandingPage />} />
     </Routes>
   )
 }
