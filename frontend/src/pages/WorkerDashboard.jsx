@@ -8,6 +8,7 @@ import PhotoUpload from '../components/PhotoUpload'
 import WorkerProfileForm from '../components/WorkerProfileForm'
 import BookingRequests from '../components/BookingRequests'
 import ActiveJobs from '../components/ActiveJobs'
+import BookingHistory from '../components/BookingHistory'
 
 function WorkerDashboard() {
     return (
@@ -15,6 +16,7 @@ function WorkerDashboard() {
         <StatusPanel />
         <BookingRequests />
         <ActiveJobs />
+        <BookingHistory />
         <WorkerProfileForm />
       </div>
     )
