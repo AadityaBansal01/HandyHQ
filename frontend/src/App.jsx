@@ -12,6 +12,7 @@ import WorkerDashboard from './pages/WorkerDashboard'     // NEW
 import CustomerDashboard from './pages/CustomerDashboard' // NEW
 import ProtectedRoute from './components/ProtectedRoute'  // NEW
 // App.jsx — switchboard, now with PROTECTED routes added
+import WorkerProfileSetupPage from './pages/WorkerProfileSetupPage'   // NEW import at top
 
 function App() {
   return (
@@ -25,6 +26,10 @@ function App() {
       <Route path="/worker/dashboard" element={
        <ProtectedRoute allowedRole="worker"><WorkerDashboard /></ProtectedRoute>
       } />
+      // NEW route — add this line next to the existing /worker/dashboard route
+<Route path="/worker/profile-setup" element={
+  <ProtectedRoute allowedRole="worker"><WorkerProfileSetupPage /></ProtectedRoute>
+} />
       <Route path="/customer/dashboard" element={
         <ProtectedRoute allowedRole="customer"><CustomerDashboard /></ProtectedRoute>
       } />

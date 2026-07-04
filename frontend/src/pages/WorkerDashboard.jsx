@@ -1,6 +1,17 @@
-// pages/WorkerDashboard.jsx — placeholder, real dashboard comes in Phase 7
+// pages/WorkerDashboard.jsx — shows the profile form for now
+// this page will grow a lot more in upcoming steps (verification status, bookings list, etc)
+
+// pages/WorkerDashboard.jsx — shows the profile form for now
+// this page will grow a lot more in upcoming steps (verification status, bookings list, etc)
+
+import WorkerProfileForm from '../components/WorkerProfileForm'
+
 function WorkerDashboard() {
-    return <h1 className="font-display text-2xl p-8">Worker Dashboard (coming in Phase 7)</h1>
-  }
-  
-  export default WorkerDashboard
+  return (
+    <div className="min-h-screen p-8 flex justify-center">
+      <WorkerProfileForm />
+    </div>
+  )
+}
+
+export default WorkerDashboard
