@@ -46,9 +46,25 @@ Say "start next step" when this feels solid and you want to move to the Signup f
 
 // components/WorkerProfileForm.jsx — lets a logged-in worker fill in the details
 // that make them findable in search: charges, location, radius, ID info
+// components/WorkerProfileForm.jsx — lets a logged-in worker fill in the details
+// that make them findable in search: charges, location, radius, ID info
+
+// ==========================================================
+// WorkerProfileForm.jsx
+// ----------------------------------------------------------
+// WHAT THIS FILE DOES:
+// 1. One state variable per field worker can fill in
+// 2. On submit, sends everything in ONE request to PUT /workers/profile
+// 3. Shows a success or error message below the form
+// Backend route this talks to: updateWorkerProfile (built in Phase 2)
+// ==========================================================
+
+// components/WorkerProfileForm.jsx — lets a logged-in worker fill in the details
+// that make them findable in search: charges, location, radius, ID info
 
 import { useState } from 'react'
 import api from '../utils/axios'
+import { Wallet, Radius, MapPin, IdCard, ClipboardEdit, Navigation } from 'lucide-react'
 
 function WorkerProfileForm() {
   const [chargesType, setChargesType] = useState('per_hour')
@@ -98,56 +114,80 @@ function WorkerProfileForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white border-2 border-dashed border-steel rounded-lg p-8 max-w-md flex flex-col gap-4"
+      className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 max-w-md flex flex-col gap-5"
     >
-      <h2 className="font-display text-2xl font-semibold text-ink">Complete your profile</h2>
-
-      <div className="flex gap-2">
-        <select value={chargesType} onChange={(e) => setChargesType(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink flex-1">
-          <option value="per_hour">Per hour</option>
-          <option value="per_day">Per day</option>
-          <option value="per_repair">Per repair</option>
-        </select>
-        <input type="number" placeholder="Amount (₹)" value={chargesAmount}
-          onChange={(e) => setChargesAmount(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink flex-1" />
+      <div className="flex items-center gap-2">
+        <ClipboardEdit className="text-amber" size={22} />
+        <h2 className="font-display text-2xl font-semibold text-ink">Complete your profile</h2>
       </div>
 
-      <input type="number" placeholder="Service radius (km)" value={serviceRadiusKm}
-        onChange={(e) => setServiceRadiusKm(e.target.value)}
-        className="border border-steel rounded-md px-3 py-2 text-ink" />
+      <div className="flex flex-col gap-2">
+        <span className="text-steel text-xs font-medium uppercase tracking-wide flex items-center gap-1.5">
+          <Wallet size={13} /> Rate
+        </span>
+        <div className="flex gap-2">
+          <select value={chargesType} onChange={(e) => setChargesType(e.target.value)}
+            className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink flex-1 focus:outline-none focus:border-ink">
+            <option value="per_hour">Per hour</option>
+            <option value="per_day">Per day</option>
+            <option value="per_repair">Per repair</option>
+          </select>
+          <input type="number" placeholder="Amount (₹)" value={chargesAmount}
+            onChange={(e) => setChargesAmount(e.target.value)}
+            className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink flex-1 focus:outline-none focus:border-ink" />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-steel text-xs font-medium uppercase tracking-wide flex items-center gap-1.5">
+          <Radius size={13} /> Service radius
+        </span>
+        <input type="number" placeholder="Service radius (km)" value={serviceRadiusKm}
+          onChange={(e) => setServiceRadiusKm(e.target.value)}
+          className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink focus:outline-none focus:border-ink" />
+      </div>
 
       {/* location row — two number boxes plus a shortcut button */}
-      <div className="flex gap-2">
-        <input type="number" placeholder="Longitude" value={longitude}
-          onChange={(e) => setLongitude(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink flex-1" />
-        <input type="number" placeholder="Latitude" value={latitude}
-          onChange={(e) => setLatitude(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink flex-1" />
+      <div className="flex flex-col gap-2">
+        <span className="text-steel text-xs font-medium uppercase tracking-wide flex items-center gap-1.5">
+          <MapPin size={13} /> Location
+        </span>
+        <div className="flex gap-2">
+          <input type="number" placeholder="Longitude" value={longitude}
+            onChange={(e) => setLongitude(e.target.value)}
+            className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink flex-1 focus:outline-none focus:border-ink" />
+          <input type="number" placeholder="Latitude" value={latitude}
+            onChange={(e) => setLatitude(e.target.value)}
+            className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink flex-1 focus:outline-none focus:border-ink" />
+        </div>
+        <button type="button" onClick={useMyLocation}
+          className="text-teal text-sm text-left flex items-center gap-1.5 hover:underline w-fit">
+          <Navigation size={14} /> Use my current location
+        </button>
       </div>
-      <button type="button" onClick={useMyLocation} className="text-teal text-sm text-left">
-        Use my current location
-      </button>
 
-      <div className="flex gap-2">
-        <select value={idDocumentType} onChange={(e) => setIdDocumentType(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink flex-1">
-          <option value="Aadhar">Aadhar</option>
-          <option value="VoterID">Voter ID</option>
-          <option value="DrivingLicense">Driving License</option>
-          <option value="Passport">Passport</option>
-        </select>
-        <input type="text" placeholder="ID number" value={idDocumentNumber}
-          onChange={(e) => setIdDocumentNumber(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink flex-1" />
+      <div className="flex flex-col gap-2">
+        <span className="text-steel text-xs font-medium uppercase tracking-wide flex items-center gap-1.5">
+          <IdCard size={13} /> ID verification
+        </span>
+        <div className="flex gap-2">
+          <select value={idDocumentType} onChange={(e) => setIdDocumentType(e.target.value)}
+            className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink flex-1 focus:outline-none focus:border-ink">
+            <option value="Aadhar">Aadhar</option>
+            <option value="VoterID">Voter ID</option>
+            <option value="DrivingLicense">Driving License</option>
+            <option value="Passport">Passport</option>
+          </select>
+          <input type="text" placeholder="ID number" value={idDocumentNumber}
+            onChange={(e) => setIdDocumentNumber(e.target.value)}
+            className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink flex-1 focus:outline-none focus:border-ink" />
+        </div>
       </div>
 
       {message && <p className="text-sm text-teal">{message}</p>}
 
       <button type="submit" disabled={loading}
-        className="bg-amber text-white py-2 rounded-md font-medium disabled:opacity-50">
+        className="bg-amber text-white py-2.5 rounded-lg font-medium hover:bg-amber/90 transition-colors disabled:opacity-50">
         {loading ? 'Saving...' : 'Save profile'}
       </button>
     </form>

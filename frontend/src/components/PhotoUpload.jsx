@@ -9,6 +9,7 @@
 
 import { useState } from 'react'
 import api from '../utils/axios'
+import { Camera, Upload } from 'lucide-react'
 
 function PhotoUpload() {
   // Component state
@@ -56,21 +57,32 @@ function PhotoUpload() {
   }
 
   return (
-    <div className="bg-white border-2 border-dashed border-steel rounded-lg p-8 max-w-md flex flex-col gap-4">
-      <h2 className="font-display text-2xl font-semibold text-ink">Profile photo</h2>
+    <div className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 max-w-md flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        <Camera className="text-amber" size={22} />
+        <h2 className="font-display text-2xl font-semibold text-ink">Profile photo</h2>
+      </div>
 
-      {/* Show uploaded profile photo */}
-      {previewUrl && (
-        <img src={previewUrl} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
-      )}
+      <div className="flex items-center gap-4">
+        {/* Show uploaded profile photo */}
+        {previewUrl ? (
+          <img src={previewUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-amber" />
+        ) : (
+          <div className="w-20 h-20 rounded-full bg-paper border-2 border-dashed border-steel/40 flex items-center justify-center">
+            <Camera className="text-steel/50" size={24} />
+          </div>
+        )}
 
-      {/* Image file picker */}
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        className="text-sm text-ink"
-      />
+        <div className="flex-1 flex flex-col gap-2">
+          {/* Image file picker */}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="text-sm text-steel file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-paper file:text-ink file:text-sm"
+          />
+        </div>
+      </div>
 
       {/* Display status message */}
       {message && <p className="text-sm text-teal">{message}</p>}
@@ -79,9 +91,9 @@ function PhotoUpload() {
       <button
         onClick={handleUpload}
         disabled={loading}
-        className="bg-amber text-white py-2 rounded-md font-medium disabled:opacity-50"
+        className="bg-amber text-white py-2.5 rounded-lg font-medium hover:bg-amber/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
       >
-        {loading ? 'Uploading...' : 'Upload photo'}
+        <Upload size={16} /> {loading ? 'Uploading...' : 'Upload photo'}
       </button>
     </div>
   )

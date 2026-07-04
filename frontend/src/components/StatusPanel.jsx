@@ -1,8 +1,8 @@
 // components/StatusPanel.jsx — shows a worker's live status: verification, suspension, streak
 // this data comes straight from the Worker document itself, no separate "status API" needed
-
 import { useState, useEffect } from 'react'
 import api from '../utils/axios'
+import { ShieldCheck, ShieldAlert, ShieldQuestion, AlertTriangle } from 'lucide-react'
 
 function StatusPanel() {
   const [worker, setWorker] = useState(null) // starts empty — we don't have the data yet
@@ -33,23 +33,37 @@ function StatusPanel() {
     Rejected: 'text-rust',
   }[worker.verificationStatus]
 
+  // icon per status — presentation only, mirrors statusColor above
+  const StatusIcon = {
+    Verified: ShieldCheck,
+    Pending: ShieldQuestion,
+    Rejected: ShieldAlert,
+  }[worker.verificationStatus]
+
   return (
-    <div className="bg-white border-2 border-dashed border-steel rounded-lg p-8 max-w-md flex flex-col gap-3">
+    <div className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 max-w-md flex flex-col gap-4">
       <h2 className="font-display text-2xl font-semibold text-ink">Your status</h2>
 
-      <p>
-        Verification: <span className={`font-mono font-medium ${statusColor}`}>{worker.verificationStatus}</span>
-      </p>
+      <div className="flex items-center gap-3 bg-paper/60 rounded-xl p-4">
+        <StatusIcon className={statusColor} size={28} strokeWidth={1.5} />
+        <div>
+          <p className="text-steel text-xs uppercase tracking-wide">Verification</p>
+          <span className={`font-mono font-medium ${statusColor}`}>{worker.verificationStatus}</span>
+        </div>
+      </div>
 
       {/* only show the suspension warning if actually suspended right now */}
       {worker.isSuspended && (
-        <p className="text-rust">
-          Suspended — {daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining
-        </p>
+        <div className="flex items-center gap-3 bg-rust/5 border border-rust/20 rounded-xl p-4">
+          <AlertTriangle className="text-rust" size={22} />
+          <p className="text-rust text-sm">
+            Suspended — {daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining
+          </p>
+        </div>
       )}
 
       <p className="text-steel text-sm">
-        Cancellation streak: <span className="font-mono">{worker.cancellationStreak}</span> / 3
+        Cancellation streak: <span className="font-mono text-ink">{worker.cancellationStreak}</span> / 3
       </p>
     </div>
   )

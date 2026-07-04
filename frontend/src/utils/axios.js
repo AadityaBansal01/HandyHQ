@@ -5,7 +5,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // change this ONE line when we deploy later
+  baseURL: 'http://localhost:5001/api', // change this ONE line when we deploy later
 })
 
 // this runs automatically BEFORE every single request sent through "api"

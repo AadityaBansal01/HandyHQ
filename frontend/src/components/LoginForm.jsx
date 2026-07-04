@@ -1,9 +1,10 @@
 
-// Reusable login form for both workers and customers (same fields, different role)
+// login form for both workers and customers (same fields, different role)
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'   // NEW
 import api from '../utils/axios'   // NEW — our central request tool
+import { User, Lock, Phone } from 'lucide-react'
 
 function LoginForm() {
 
@@ -54,23 +55,29 @@ function LoginForm() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen bg-paper flex items-center justify-center px-4">
       {/* Login form container */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white border-2 border-dashed border-steel rounded-lg p-8 w-80 flex flex-col gap-4"
+        className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 w-full max-w-sm flex flex-col gap-5"
       >
-        <h2 className="font-display text-2xl font-semibold text-ink text-center">
-          Log in
-        </h2>
+        <div className="text-center pb-1">
+          <div className="w-10 h-10 rounded-md bg-ink flex items-center justify-center mx-auto mb-3">
+            <span className="font-display text-paper font-semibold text-sm">H</span>
+          </div>
+          <h2 className="font-display text-2xl font-semibold text-ink">
+            Welcome back
+          </h2>
+          <p className="text-steel text-sm mt-1">Log in to continue</p>
+        </div>
 
         {/* Role toggle: only one active at a time */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 bg-paper rounded-lg p-1">
           <button
             type="button" // Prevent button from submitting form
             onClick={() => setRole('customer')}
-            className={`flex-1 py-2 rounded-md font-medium ${
-              role === 'customer' ? 'bg-amber text-white' : 'bg-paper text-steel'
+            className={`flex-1 py-2 rounded-md font-medium text-sm transition-colors ${
+              role === 'customer' ? 'bg-amber text-white' : 'text-steel'
             }`}
           >
             Customer
@@ -78,8 +85,8 @@ function LoginForm() {
           <button
             type="button"
             onClick={() => setRole('worker')}
-            className={`flex-1 py-2 rounded-md font-medium ${
-              role === 'worker' ? 'bg-amber text-white' : 'bg-paper text-steel'
+            className={`flex-1 py-2 rounded-md font-medium text-sm transition-colors ${
+              role === 'worker' ? 'bg-amber text-white' : 'text-steel'
             }`}
           >
             Worker
@@ -87,31 +94,38 @@ function LoginForm() {
         </div>
 
         {/* Controlled phone input */}
-        <input
-          type="text"
-          placeholder="Phone number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink"
-        />
+        <div className="relative">
+          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+          <input
+            type="text"
+            placeholder="Phone number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink"
+          />
+        </div>
 
         {/* Controlled password input */}
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink"
-        />
+        <div className="relative">
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink"
+          />
+        </div>
 
 
          {/* NEW — only shows up when there's an actual error to display */}
-         {error && <p className="text-rust text-sm">{error}</p>}
+         {error && <p className="text-rust text-sm text-center">{error}</p>}
 
 
         {/* Submit login form */}
-        <button type="submit" className="bg-amber text-white py-2 rounded-md font-medium">
-          Log in
+        <button type="submit" disabled={loading}
+          className="bg-amber text-white py-2.5 rounded-lg font-medium hover:bg-amber/90 transition-colors disabled:opacity-50">
+          {loading ? 'Logging in...' : 'Log in'}
         </button>
       </form>
     </div>
@@ -119,4 +133,3 @@ function LoginForm() {
 }
 
 export default LoginForm
-

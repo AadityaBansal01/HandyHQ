@@ -1,11 +1,11 @@
 // components/SignupForm.jsx — signup form for BOTH workers and customers
 // customer fields: name, phone, password
 // worker fields: name, phone, password, PLUS workType (workers need this, customers don't)
-
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'   // NEW
 import api from '../utils/axios'   // NEW
 import { useSearchParams } from 'react-router-dom'
+import { User, Lock, Phone, Wrench } from 'lucide-react'
 
 function SignupForm() {
     const navigate = useNavigate()   // NEW
@@ -61,21 +61,27 @@ const [role, setRole] = useState(searchParams.get('role') === 'worker' ? 'worker
     }
   }
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen bg-paper flex items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white border-2 border-dashed border-steel rounded-lg p-8 w-80 flex flex-col gap-4"
+        className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 w-full max-w-sm flex flex-col gap-5"
       >
-        <h2 className="font-display text-2xl font-semibold text-ink text-center">
-          Sign up
-        </h2>
+        <div className="text-center pb-1">
+          <div className="w-10 h-10 rounded-md bg-ink flex items-center justify-center mx-auto mb-3">
+            <span className="font-display text-paper font-semibold text-sm">H</span>
+          </div>
+          <h2 className="font-display text-2xl font-semibold text-ink">
+            Create your account
+          </h2>
+          <p className="text-steel text-sm mt-1">Join HandyHQ in a minute</p>
+        </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 bg-paper rounded-lg p-1">
           <button
             type="button"
             onClick={() => setRole('customer')}
-            className={`flex-1 py-2 rounded-md font-medium ${
-              role === 'customer' ? 'bg-amber text-white' : 'bg-paper text-steel'
+            className={`flex-1 py-2 rounded-md font-medium text-sm transition-colors ${
+              role === 'customer' ? 'bg-amber text-white' : 'text-steel'
             }`}
           >
             Customer
@@ -83,58 +89,73 @@ const [role, setRole] = useState(searchParams.get('role') === 'worker' ? 'worker
           <button
             type="button"
             onClick={() => setRole('worker')}
-            className={`flex-1 py-2 rounded-md font-medium ${
-              role === 'worker' ? 'bg-amber text-white' : 'bg-paper text-steel'
+            className={`flex-1 py-2 rounded-md font-medium text-sm transition-colors ${
+              role === 'worker' ? 'bg-amber text-white' : 'text-steel'
             }`}
           >
             Worker
           </button>
         </div>
 
-        <input
-          type="text"
-          placeholder="Full name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink"
-        />
+        <div className="relative">
+          <User className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+          <input
+            type="text"
+            placeholder="Full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink"
+          />
+        </div>
 
-        <input
-          type="text"
-          placeholder="Phone number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink"
-        />
+        <div className="relative">
+          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+          <input
+            type="text"
+            placeholder="Phone number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink"
+          />
+        </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink"
-        />
+        <div className="relative">
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink"
+          />
+        </div>
 
         {/* CONDITIONAL RENDERING — this whole block only appears when role is 'worker'.
             When role is 'customer', React skips this entirely, like it was never written */}
         {role === 'worker' && (
-          <select
-            value={workType}
-            onChange={(e) => setWorkType(e.target.value)}
-            className="border border-steel rounded-md px-3 py-2 text-ink"
-          >
-            <option value="Plumber">Plumber</option>
-            <option value="Electrician">Electrician</option>
-            <option value="Mechanic">Mechanic</option>
-            <option value="Labourer">Labourer</option>
-            <option value="Carpenter">Carpenter</option>
-            <option value="Painter">Painter</option>
-            <option value="Other">Other</option>
-          </select>
+          <div className="relative">
+            <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+            <select
+              value={workType}
+              onChange={(e) => setWorkType(e.target.value)}
+              className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink appearance-none"
+            >
+              <option value="Plumber">Plumber</option>
+              <option value="Electrician">Electrician</option>
+              <option value="Mechanic">Mechanic</option>
+              <option value="Labourer">Labourer</option>
+              <option value="Carpenter">Carpenter</option>
+              <option value="Painter">Painter</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
         )}
 
-        <button type="submit" className="bg-amber text-white py-2 rounded-md font-medium">
-          Sign up
+        {error && <p className="text-rust text-sm text-center">{error}</p>}
+
+        <button type="submit" disabled={loading}
+          className="bg-amber text-white py-2.5 rounded-lg font-medium hover:bg-amber/90 transition-colors disabled:opacity-50">
+          {loading ? 'Signing up...' : 'Sign up'}
         </button>
       </form>
     </div>

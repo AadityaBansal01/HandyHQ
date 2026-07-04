@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import api from '../utils/axios'
+import { UserCircle } from 'lucide-react'
 
 function CustomerProfileForm() {
   const [name, setName] = useState('')
@@ -36,20 +37,23 @@ function CustomerProfileForm() {
 
   return (
     <form onSubmit={handleSubmit}
-      className="bg-white border-2 border-dashed border-steel rounded-lg p-8 max-w-md flex flex-col gap-4 w-full">
-      <h2 className="font-display text-2xl font-semibold text-ink">Your profile</h2>
+      className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 max-w-md flex flex-col gap-4 w-full">
+      <div className="flex items-center gap-2">
+        <UserCircle className="text-steel" size={22} />
+        <h2 className="font-display text-2xl font-semibold text-ink">Your profile</h2>
+      </div>
 
       <input type="text" placeholder="Full name" value={name}
         onChange={(e) => setName(e.target.value)}
-        className="border border-steel rounded-md px-3 py-2 text-ink" />
+        className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink focus:outline-none focus:border-ink" />
 
       <input type="email" placeholder="Email (optional)" value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="border border-steel rounded-md px-3 py-2 text-ink" />
+        className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink focus:outline-none focus:border-ink" />
 
       {message && <p className="text-sm text-teal">{message}</p>}
 
-      <button type="submit" className="bg-amber text-white py-2 rounded-md font-medium">
+      <button type="submit" className="bg-amber text-white py-2.5 rounded-lg font-medium hover:bg-amber/90 transition-colors">
         Save changes
       </button>
     </form>

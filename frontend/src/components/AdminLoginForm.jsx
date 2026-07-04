@@ -1,9 +1,13 @@
 // components/AdminLoginForm.jsx — separate from LoginForm since admin uses
 // EMAIL (not phone) and hits a completely different backend route
 
+// components/AdminLoginForm.jsx — separate from LoginForm since admin uses
+// EMAIL (not phone) and hits a completely different backend route
+
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/axios'
+import { ShieldCheck, Mail, Lock } from 'lucide-react'
 
 function AdminLoginForm() {
   const navigate = useNavigate()
@@ -25,22 +29,36 @@ function AdminLoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen bg-ink flex items-center justify-center px-4">
       <form onSubmit={handleSubmit}
-        className="bg-white border-2 border-dashed border-steel rounded-lg p-8 w-80 flex flex-col gap-4">
-        <h2 className="font-display text-2xl font-semibold text-ink text-center">Admin login</h2>
+        className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm flex flex-col gap-5">
+        <div className="flex flex-col items-center gap-3 pb-2">
+          <div className="w-12 h-12 rounded-full bg-ink flex items-center justify-center">
+            <ShieldCheck className="text-amber" size={22} />
+          </div>
+          <div className="text-center">
+            <span className="font-mono text-xs text-steel tracking-widest">RESTRICTED ACCESS</span>
+            <h2 className="font-display text-2xl font-semibold text-ink">Admin login</h2>
+          </div>
+        </div>
 
-        <input type="email" placeholder="Admin email" value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink" />
+        <div className="relative">
+          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+          <input type="email" placeholder="Admin email" value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink" />
+        </div>
 
-        <input type="password" placeholder="Password" value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border border-steel rounded-md px-3 py-2 text-ink" />
+        <div className="relative">
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+          <input type="password" placeholder="Password" value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink" />
+        </div>
 
-        {error && <p className="text-rust text-sm">{error}</p>}
+        {error && <p className="text-rust text-sm text-center">{error}</p>}
 
-        <button type="submit" className="bg-amber text-white py-2 rounded-md font-medium">
+        <button type="submit" className="bg-ink text-white py-2.5 rounded-lg font-medium hover:bg-ink/90 transition-colors">
           Log in
         </button>
       </form>
