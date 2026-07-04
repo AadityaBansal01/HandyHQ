@@ -1,6 +1,14 @@
-// pages/CustomerDashboard.jsx — placeholder, real dashboard comes in Phase 8
+// pages/CustomerDashboard.jsx — customer's home base; will grow with search, history, etc
+// in upcoming steps
+
+import CustomerProfileForm from '../components/CustomerProfileForm'
+
 function CustomerDashboard() {
-    return <h1 className="font-display text-2xl p-8">Customer Dashboard (coming in Phase 8)</h1>
-  }
-  
-  export default CustomerDashboard
+  return (
+    <div className="min-h-screen p-8 flex flex-col items-center gap-6">
+      <CustomerProfileForm />
+    </div>
+  )
+}
+
+export default CustomerDashboard
