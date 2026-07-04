@@ -34,6 +34,10 @@ function App() {
       <Route path="/customer/dashboard" element={
         <ProtectedRoute allowedRole="customer"><CustomerDashboard /></ProtectedRoute>
       } />
+
+<Route path="/admin/dashboard" element={
+        <ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>
+      } />   {/* NEW */}
       
            {/* only customers should be able to view a profile and book someone */}
            <Route path="/workers/:id/view" element={
