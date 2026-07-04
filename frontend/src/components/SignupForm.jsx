@@ -44,6 +44,8 @@ function SignupForm() {
 
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('role', role)
+       // NEW
+       localStorage.setItem('userId', role === 'worker' ? response.data.worker.id : response.data.customer.id)
 
       navigate(role === 'worker' ? '/worker/dashboard' : '/customer/dashboard')
 

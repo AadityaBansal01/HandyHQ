@@ -36,6 +36,8 @@ function LoginForm() {
       // requests (and future page loads) know this user is logged in
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('role', role) // we'll need this later to decide which dashboard to show
+         // NEW — save this user's own id so the dashboard knows whose data to fetch
+         localStorage.setItem('userId', role === 'worker' ? response.data.worker.id : response.data.customer.id)
 
             // NEW — send them to the right dashboard based on which role logged in
             navigate(role === 'worker' ? '/worker/dashboard' : '/customer/dashboard')
