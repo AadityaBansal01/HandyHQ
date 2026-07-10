@@ -3,9 +3,8 @@
 //That's the whole file. From now on, any page just does api.post('/workers/login', data) instead of typing the full URL and manually attaching the token every time.
 
 import axios from 'axios'
-
 const api = axios.create({
-  baseURL: 'http://localhost:5001/api', // change this ONE line when we deploy later
+  baseURL: 'https://handy-hq-tcni.vercel.app/', // must be the real Render URL, not localhost
 })
 
 // this runs automatically BEFORE every single request sent through "api"
