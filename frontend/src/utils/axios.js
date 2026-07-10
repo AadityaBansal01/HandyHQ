@@ -4,7 +4,7 @@
 
 import axios from 'axios'
 const api = axios.create({
-  baseURL: 'https://handy-hq-tcni.vercel.app/', // must be the real Render URL, not localhost
+  baseURL: 'https://handyhq-ku5q.onrender.com', // must be the real Render URL, not localhost
 })
 
 // this runs automatically BEFORE every single request sent through "api"
