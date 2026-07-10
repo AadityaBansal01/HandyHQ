@@ -55,7 +55,7 @@ function SearchWorkers() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 max-w-2xl flex flex-col gap-5 w-full">
+    <div className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8  flex flex-col gap-5 w-full">
       <div className="flex items-center gap-2">
         <Search className="text-amber" size={22} />
         <h2 className="font-display text-2xl font-semibold text-ink">Find a worker</h2>

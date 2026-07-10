@@ -7,25 +7,26 @@
 
 // Worker profile photo upload component
 
+// components/PhotoUpload.jsx — only change: root card now stretches full height when its
+// parent gives it room (h-full), so it fills leftover sidebar space instead of stopping short
+
+// components/PhotoUpload.jsx — reverted the stretch hack, card sizes to its own content again
+
 import { useState } from 'react'
 import api from '../utils/axios'
 import { Camera, Upload } from 'lucide-react'
 
 function PhotoUpload() {
-  // Component state
-  const [file, setFile] = useState(null)           // Selected image file
-  const [previewUrl, setPreviewUrl] = useState('') // Uploaded photo URL
-  const [message, setMessage] = useState('')       // Success/error message
-  const [loading, setLoading] = useState(false)    // Upload status
+  const [file, setFile] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState('')
+  const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  // Store the selected file
   const handleFileChange = (e) => {
     setFile(e.target.files[0])
   }
 
-  // Upload the selected photo to the backend
   const handleUpload = async () => {
-    // Don't continue if no file is selected
     if (!file) {
       setMessage('Pick a photo first')
       return
@@ -34,37 +35,31 @@ function PhotoUpload() {
     setLoading(true)
     setMessage('')
 
-    // Create form data and attach the photo
     const formData = new FormData()
     formData.append('photo', file)
 
     try {
-      // Call PUT /api/workers/profile-photo
       const response = await api.put('/workers/profile-photo', formData, {
-        // Tell the backend this request contains a file
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
-      // Save the uploaded photo URL
       setPreviewUrl(response.data.profilePhoto)
       setMessage('Photo uploaded successfully')
     } catch (err) {
       setMessage(err.response?.data?.message || 'Upload failed. Try again.')
     } finally {
-      // Reset loading state
       setLoading(false)
     }
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 max-w-md flex flex-col gap-4">
+    <div className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 flex flex-col gap-4">
       <div className="flex items-center gap-2">
         <Camera className="text-amber" size={22} />
         <h2 className="font-display text-2xl font-semibold text-ink">Profile photo</h2>
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Show uploaded profile photo */}
         {previewUrl ? (
           <img src={previewUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-amber" />
         ) : (
@@ -74,7 +69,6 @@ function PhotoUpload() {
         )}
 
         <div className="flex-1 flex flex-col gap-2">
-          {/* Image file picker */}
           <input
             type="file"
             accept="image/*"
@@ -84,10 +78,8 @@ function PhotoUpload() {
         </div>
       </div>
 
-      {/* Display status message */}
       {message && <p className="text-sm text-teal">{message}</p>}
 
-      {/* Upload button */}
       <button
         onClick={handleUpload}
         disabled={loading}

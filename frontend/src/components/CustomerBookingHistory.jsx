@@ -58,7 +58,7 @@ function CustomerBookingHistory() {
   if (loading) return <p className="text-steel">Loading history...</p>
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 max-w-md flex flex-col gap-4 w-full">
+    <div className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 flex flex-col gap-4 w-full">
       <div className="flex items-center gap-2">
         <ClipboardList className="text-steel" size={22} />
         <h2 className="font-display text-2xl font-semibold text-ink">Your bookings</h2>

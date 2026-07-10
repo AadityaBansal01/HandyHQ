@@ -11,6 +11,16 @@
 // pages/WorkerDashboard.jsx — sidebar (identity/profile) + main column (things needing action)
 // sidebar: status + photo + profile form — set once, checked occasionally
 // main: requests > active jobs > history — most urgent/actionable first
+// pages/WorkerDashboard.jsx — sidebar stays short: status + photo only.
+// main column carries everything else, profile form goes LAST since it's set-once info
+
+// pages/WorkerDashboard.jsx — items-stretch makes the sidebar column match main column's
+// full height; Photo card (flex-1 wrapper) grows to consume the leftover space,
+// so the sidebar's white cards visually reach the same bottom edge as main column
+
+// pages/WorkerDashboard.jsx — wider container (uses more of the actual screen width
+// instead of leaving a large gray margin), left column's 2 cards split space evenly
+// via flex-1 on each, no more forced height-matching hacks
 
 import { useNavigate } from 'react-router-dom'
 import StatusPanel from '../components/StatusPanel'
@@ -44,21 +54,26 @@ function WorkerDashboard() {
           </button>
         </header>
 
-        {/* GRID — narrow fixed sidebar (identity), wide flexible main column (action items) */}
-        <div className="max-w-6xl mx-auto p-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start">
+        {/* widened from max-w-6xl to max-w-[1600px] — actually uses the screen instead of
+            a narrow centered column with huge gray margins on a wide monitor */}
+        <div className="max-w-[1600px] mx-auto p-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start">
 
-          {/* SIDEBAR — sticky so it stays visible while scrolling the longer main column */}
-          <div className="flex flex-col gap-6 lg:sticky lg:top-24">
-            <StatusPanel />
-            <PhotoUpload />
-            <WorkerProfileForm />
+          {/* both cards wrapped in flex-1 so they split whatever height this column ends up
+              needing EVENLY between them — no more one card stretching alone */}
+          <div className="flex flex-col gap-6">
+            <div className="flex-1 flex flex-col">
+              <StatusPanel />
+            </div>
+            <div className="flex-1 flex flex-col">
+              <PhotoUpload />
+            </div>
           </div>
 
-          {/* MAIN COLUMN — ordered by urgency: needs a decision > in motion > archive */}
           <div className="flex flex-col gap-6 min-w-0">
             <BookingRequests />
             <ActiveJobs />
             <BookingHistory />
+            <WorkerProfileForm />
           </div>
 
         </div>

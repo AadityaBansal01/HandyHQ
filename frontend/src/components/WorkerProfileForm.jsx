@@ -61,7 +61,7 @@ Say "start next step" when this feels solid and you want to move to the Signup f
 
 // components/WorkerProfileForm.jsx — lets a logged-in worker fill in the details
 // that make them findable in search: charges, location, radius, ID info
-
+// components/WorkerProfileForm.jsx — only change: removed max-w-md from root form
 import { useState } from 'react'
 import api from '../utils/axios'
 import { Wallet, Radius, MapPin, IdCard, ClipboardEdit, Navigation } from 'lucide-react'
@@ -75,10 +75,9 @@ function WorkerProfileForm() {
   const [idDocumentType, setIdDocumentType] = useState('Aadhar')
   const [idDocumentNumber, setIdDocumentNumber] = useState('')
 
-  const [message, setMessage] = useState('')   // shows either success or error text
+  const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // lets the worker auto-fill lng/lat using their phone/browser's GPS instead of typing it
   const useMyLocation = () => {
     navigator.geolocation.getCurrentPosition((position) => {
       setLatitude(position.coords.latitude)
@@ -91,7 +90,7 @@ function WorkerProfileForm() {
     setMessage('')
     setLoading(true)
 
-    try {// Send updated worker profile details to the backend API
+    try {
       const response = await api.put('/workers/profile', {
         chargesType,
         chargesAmount,
@@ -114,7 +113,7 @@ function WorkerProfileForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 max-w-md flex flex-col gap-5"
+      className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 flex flex-col gap-5 w-full"
     >
       <div className="flex items-center gap-2">
         <ClipboardEdit className="text-amber" size={22} />
@@ -147,7 +146,6 @@ function WorkerProfileForm() {
           className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink focus:outline-none focus:border-ink" />
       </div>
 
-      {/* location row — two number boxes plus a shortcut button */}
       <div className="flex flex-col gap-2">
         <span className="text-steel text-xs font-medium uppercase tracking-wide flex items-center gap-1.5">
           <MapPin size={13} /> Location

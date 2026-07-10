@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from 'react'
 import api from '../utils/axios'
-import { UserCircle } from 'lucide-react'
 
 function CustomerProfileForm() {
   const [name, setName] = useState('')
@@ -37,19 +36,27 @@ function CustomerProfileForm() {
 
   return (
     <form onSubmit={handleSubmit}
-      className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 max-w-md flex flex-col gap-4 w-full">
-      <div className="flex items-center gap-2">
-        <UserCircle className="text-steel" size={22} />
-        <h2 className="font-display text-2xl font-semibold text-ink">Your profile</h2>
+      className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 flex flex-col gap-6 w-full h-full">
+
+      {/* simple text header, no avatar — customers don't have a photo upload feature */}
+      <div className="pb-6 border-b border-steel/15">
+        <h2 className="font-display text-xl font-semibold text-ink">{name || 'Your profile'}</h2>
+        <span className="font-mono text-xs text-steel tracking-wide">CUSTOMER ACCOUNT</span>
       </div>
 
-      <input type="text" placeholder="Full name" value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink focus:outline-none focus:border-ink" />
+      <div className="flex flex-col gap-2">
+        <label className="text-steel text-xs font-medium uppercase tracking-wide">Full name</label>
+        <input type="text" placeholder="Full name" value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink focus:outline-none focus:border-ink" />
+      </div>
 
-      <input type="email" placeholder="Email (optional)" value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink focus:outline-none focus:border-ink" />
+      <div className="flex flex-col gap-2">
+        <label className="text-steel text-xs font-medium uppercase tracking-wide">Email (optional)</label>
+        <input type="email" placeholder="Email" value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border border-steel/40 rounded-lg px-3 py-2.5 text-ink focus:outline-none focus:border-ink" />
+      </div>
 
       {message && <p className="text-sm text-teal">{message}</p>}
 

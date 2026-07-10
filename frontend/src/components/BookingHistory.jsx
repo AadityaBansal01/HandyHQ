@@ -2,11 +2,11 @@
 
 // components/BookingHistory.jsx — worker's full booking history, all statuses, paginated
 
+// components/BookingHistory.jsx — only change: removed max-w-md from root div
 import { useState, useEffect } from 'react'
 import api from '../utils/axios'
 import { History, ChevronLeft, ChevronRight } from 'lucide-react'
 
-// NEW — presentation-only status color mapping, doesn't affect any logic, just styling
 const statusStyles = {
   Requested: 'bg-amber/10 text-amber',
   Accepted: 'bg-amber/10 text-amber',
@@ -18,7 +18,7 @@ const statusStyles = {
 
 function BookingHistory() {
   const [bookings, setBookings] = useState([])
-  const [page, setPage] = useState(1)         // which page we're currently viewing
+  const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
 
@@ -30,9 +30,6 @@ function BookingHistory() {
     setLoading(false)
   }
 
-  // NOTICE the [page] here — unlike earlier components' empty [], this means
-  // "re-run this fetch every time 'page' changes," not just once on load.
-  // that's exactly what we need: clicking Next/Previous changes page -> triggers a re-fetch
   useEffect(() => {
     fetchBookings()
   }, [page])
@@ -40,7 +37,7 @@ function BookingHistory() {
   if (loading) return <p className="text-steel">Loading history...</p>
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 max-w-md flex flex-col gap-4 w-full">
+    <div className="bg-white rounded-2xl shadow-sm border border-steel/15 p-8 flex flex-col gap-4 w-full">
       <div className="flex items-center gap-2">
         <History className="text-steel" size={22} />
         <h2 className="font-display text-2xl font-semibold text-ink">Booking history</h2>
@@ -60,7 +57,6 @@ function BookingHistory() {
         </div>
       ))}
 
-      {/* pagination controls — only show if there's more than one page */}
       {totalPages > 1 && (
         <div className="flex justify-between items-center pt-2 border-t border-steel/15">
           <button
