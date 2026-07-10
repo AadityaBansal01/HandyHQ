@@ -9,16 +9,17 @@
 
 // pages/CustomerDashboard.jsx — Phase 8 complete: search, profile, and history all together
 
-import { useNavigate } from 'react-router-dom'   // NEW — logout needs this
+// pages/CustomerDashboard.jsx — sidebar (profile, set-once) + main column (search + bookings, what you came here to do)
+
+import { useNavigate } from 'react-router-dom'
 import SearchWorkers from '../components/SearchWorkers'
 import CustomerBookingHistory from '../components/CustomerBookingHistory'
 import CustomerProfileForm from '../components/CustomerProfileForm'
 import { LogOut } from 'lucide-react'
 
 function CustomerDashboard() {
-  const navigate = useNavigate()   // NEW
+  const navigate = useNavigate()
 
-  // NEW — minimal logout: clear saved session, send back to login
   const handleLogout = () => {
     localStorage.clear()
     navigate('/login')
@@ -26,7 +27,6 @@ function CustomerDashboard() {
 
   return (
     <div className="min-h-screen bg-paper">
-      {/* NEW — header bar, not present before */}
       <header className="bg-white border-b border-steel/15 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-md bg-ink flex items-center justify-center">
@@ -40,12 +40,20 @@ function CustomerDashboard() {
         </button>
       </header>
 
-      <div className="max-w-5xl mx-auto p-8 flex flex-col gap-6">
-        <SearchWorkers />
-        <div className="grid md:grid-cols-2 gap-6">
-          <CustomerBookingHistory />
+      {/* GRID — narrow fixed sidebar (profile), wide flexible main column (search + history) */}
+      <div className="max-w-6xl mx-auto p-8 grid lg:grid-cols-[340px_1fr] gap-6 items-start">
+
+        {/* SIDEBAR — sticky, profile is set-once info, doesn't need to compete with search */}
+        <div className="flex flex-col gap-6 lg:sticky lg:top-24">
           <CustomerProfileForm />
         </div>
+
+        {/* MAIN COLUMN — search first (primary action), bookings below (what happened after) */}
+        <div className="flex flex-col gap-6 min-w-0">
+          <SearchWorkers />
+          <CustomerBookingHistory />
+        </div>
+
       </div>
     </div>
   )
