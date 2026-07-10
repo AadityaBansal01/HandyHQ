@@ -39,7 +39,7 @@ const workerSchema = new mongoose.Schema({
     type: {
       type: String,
       enum: ['Point'],
-      default: 'Point',
+     
     },
     coordinates: {
       type: [Number], // [longitude, latitude] — this order matters for MongoDB

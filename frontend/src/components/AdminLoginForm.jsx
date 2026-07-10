@@ -1,12 +1,10 @@
 // components/AdminLoginForm.jsx — separate from LoginForm since admin uses
 // EMAIL (not phone) and hits a completely different backend route
 
-// components/AdminLoginForm.jsx — separate from LoginForm since admin uses
-// EMAIL (not phone) and hits a completely different backend route
-
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/axios'
+import { validateEmail, validatePassword } from '../utils/validators' // NEW
 import { ShieldCheck, Mail, Lock } from 'lucide-react'
 
 function AdminLoginForm() {
@@ -15,13 +13,37 @@ function AdminLoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
+  // NEW — same per-field error pattern as the other two forms
+  const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' })
+
+  // NEW — admin email is REQUIRED (unlike the optional email field on customer profiles),
+  // so we check it's non-empty ourselves, then reuse validateEmail for the format check
+  const validateForm = () => {
+    let emailError = ''
+    if (!email) {
+      emailError = 'Email is required'
+    } else {
+      emailError = validateEmail(email) // checks format only, since we already know it's non-empty
+    }
+
+    const passwordError = validatePassword(password)
+
+    setFieldErrors({ email: emailError, password: passwordError })
+
+    return !emailError && !passwordError
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+
+    const isValid = validateForm()
+    if (!isValid) return
+
     try {
       const response = await api.post('/admin/login', { email, password })
       localStorage.setItem('token', response.data.token)
-      localStorage.setItem('role', 'admin') // no id to save — admin has no DB document, remember
+      localStorage.setItem('role', 'admin')
       navigate('/admin/dashboard')
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid credentials')
@@ -42,18 +64,38 @@ function AdminLoginForm() {
           </div>
         </div>
 
-        <div className="relative">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
-          <input type="email" placeholder="Admin email" value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink" />
+        {/* email field */}
+        <div>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+            <input
+              type="email"
+              placeholder="Admin email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`border rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none ${
+                fieldErrors.email ? 'border-rust' : 'border-steel/40 focus:border-ink'
+              }`}
+            />
+          </div>
+          {fieldErrors.email && <p className="text-rust text-xs mt-1">{fieldErrors.email}</p>}
         </div>
 
-        <div className="relative">
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
-          <input type="password" placeholder="Password" value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink" />
+        {/* password field */}
+        <div>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`border rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none ${
+                fieldErrors.password ? 'border-rust' : 'border-steel/40 focus:border-ink'
+              }`}
+            />
+          </div>
+          {fieldErrors.password && <p className="text-rust text-xs mt-1">{fieldErrors.password}</p>}
         </div>
 
         {error && <p className="text-rust text-sm text-center">{error}</p>}

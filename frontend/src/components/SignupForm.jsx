@@ -1,43 +1,48 @@
-// components/SignupForm.jsx — signup form for BOTH workers and customers
-// customer fields: name, phone, password
-// worker fields: name, phone, password, PLUS workType (workers need this, customers don't)
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'   // NEW
-import api from '../utils/axios'   // NEW
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import api from '../utils/axios'
+import { validateName, validatePhone, validatePassword } from '../utils/validators' // NEW
 import { User, Lock, Phone, Wrench } from 'lucide-react'
 
 function SignupForm() {
-    const navigate = useNavigate()   // NEW
-  // ...all your existing state stays exactly the same...
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-// if the URL was /signup?role=worker (from the landing page), start with Worker already selected
-const [role, setRole] = useState(searchParams.get('role') === 'worker' ? 'worker' : 'customer')
+  const [role, setRole] = useState(searchParams.get('role') === 'worker' ? 'worker' : 'customer')
 
-  // one state slot per field — same controlled-input pattern from LoginForm
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
-
-  // workType only matters for workers, but we still need a state slot for it —
-  // it just won't be SENT to the backend later if role is 'customer'
   const [workType, setWorkType] = useState('Plumber')
 
-
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)  
+  const [loading, setLoading] = useState(false)
 
+  // NEW — same idea as LoginForm: one object holding an error message per field
+  const [fieldErrors, setFieldErrors] = useState({ name: '', phone: '', password: '' })
+
+  // NEW — checks all three fields, saves any error messages, returns whether the form is valid overall
+  const validateForm = () => {
+    const nameError = validateName(name)
+    const phoneError = validatePhone(phone)
+    const passwordError = validatePassword(password)
+
+    setFieldErrors({ name: nameError, phone: phoneError, password: passwordError })
+
+    return !nameError && !phoneError && !passwordError
+  }
 
   const handleSubmit = async (e) => {
-      e.preventDefault()
+    e.preventDefault()
     setError('')
+
+    // NEW — stop here if anything's invalid, before calling the backend at all
+    const isValid = validateForm()
+    if (!isValid) return
+
     setLoading(true)
 
     const endpoint = role === 'worker' ? '/workers/register' : '/customers/register'
 
-    // build the right body shape per role — customer doesn't need workType at all,
-    // sending it wouldn't break anything (backend just ignores extra fields), but
-    // keeping it clean means the request only ever contains what's actually relevant
     const body = role === 'worker'
       ? { name, phone, password, workType }
       : { name, phone, password }
@@ -47,19 +52,16 @@ const [role, setRole] = useState(searchParams.get('role') === 'worker' ? 'worker
 
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('role', role)
-       // NEW
-       localStorage.setItem('userId', role === 'worker' ? response.data.worker.id : response.data.customer.id)
+      localStorage.setItem('userId', role === 'worker' ? response.data.worker.id : response.data.customer.id)
 
       navigate(role === 'worker' ? '/worker/dashboard' : '/customer/dashboard')
-
-      console.log('Signup successful:', response.data)
-      // TEMPORARY — becomes a redirect to the dashboard once routing exists
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong. Try again.')
     } finally {
       setLoading(false)
     }
   }
+
   return (
     <div className="min-h-screen bg-paper flex items-center justify-center px-4">
       <form
@@ -97,41 +99,59 @@ const [role, setRole] = useState(searchParams.get('role') === 'worker' ? 'worker
           </button>
         </div>
 
-        <div className="relative">
-          <User className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
-          <input
-            type="text"
-            placeholder="Full name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink"
-          />
+        {/* name field */}
+        <div>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+            <input
+              type="text"
+              placeholder="Full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={`border rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none ${
+                fieldErrors.name ? 'border-rust' : 'border-steel/40 focus:border-ink'
+              }`}
+            />
+          </div>
+          {fieldErrors.name && <p className="text-rust text-xs mt-1">{fieldErrors.name}</p>}
         </div>
 
-        <div className="relative">
-          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
-          <input
-            type="text"
-            placeholder="Phone number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink"
-          />
+        {/* phone field */}
+        <div>
+          <div className="relative">
+            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+            <input
+              type="text"
+              placeholder="Phone number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className={`border rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none ${
+                fieldErrors.phone ? 'border-rust' : 'border-steel/40 focus:border-ink'
+              }`}
+            />
+          </div>
+          {fieldErrors.phone && <p className="text-rust text-xs mt-1">{fieldErrors.phone}</p>}
         </div>
 
-        <div className="relative">
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border border-steel/40 rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none focus:border-ink"
-          />
+        {/* password field */}
+        <div>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`border rounded-lg pl-10 pr-3 py-2.5 text-ink w-full focus:outline-none ${
+                fieldErrors.password ? 'border-rust' : 'border-steel/40 focus:border-ink'
+              }`}
+            />
+          </div>
+          {fieldErrors.password && <p className="text-rust text-xs mt-1">{fieldErrors.password}</p>}
         </div>
 
-        {/* CONDITIONAL RENDERING — this whole block only appears when role is 'worker'.
-            When role is 'customer', React skips this entirely, like it was never written */}
+        {/* workType only shows for workers — unchanged conditional logic, no validation needed
+            since it's a dropdown with a preset default, can never be "invalid" */}
         {role === 'worker' && (
           <div className="relative">
             <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 text-steel" size={18} />
